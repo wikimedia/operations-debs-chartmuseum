@@ -1,0 +1,3 @@
+debian/usr/share/doc/chartmuseum/examples/chartmuseum.yaml usr/share/doc/chartmuseum/examples
+debian/etc/chartmuseum/chartmuseum.yaml /etc/chartmuseum
+debian/sysusers/chartmuseum.conf /usr/lib/sysusers.d

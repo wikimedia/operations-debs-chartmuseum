@@ -1,0 +1,12 @@
+[Unit]
+Description=ChartMuseum
+Documentation=https://chartmuseum.com/docs/
+After=network.target
+
+[Service]
+User=chartmuseum
+ExecStart=/usr/bin/chartmuseum --config /etc/chartmuseum/chartmuseum.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

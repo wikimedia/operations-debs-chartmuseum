@@ -1,0 +1,22 @@
+Source: chartmuseum
+Section: net
+Priority: optional
+Maintainer: Janis Meybohm <jmeybohm@wikimedia.org>
+Build-Depends: debhelper-compat (= 12),
+               dh-golang,
+               golang-any (>= 2:1.13),
+               git,
+               helm
+Standards-Version: 4.1.3
+Homepage: https://chartmuseum.com
+XS-Go-Import-Path: helm.sh/chartmuseum
+
+Package: chartmuseum
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd
+Description: A Helm chart repository
+ ChartMuseum is an Helm chart repository server with support for a
+ multitude of (cloud) storage backends.
+ .
+ It works as a valid Helm Chart Repository, and also provides an
+ API for uploading charts.

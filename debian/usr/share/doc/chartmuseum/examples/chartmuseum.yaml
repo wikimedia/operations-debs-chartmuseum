@@ -1,0 +1,169 @@
+# allowoverwrite: allow chart versions to be re-uploaded without ?force querystring
+allowoverwrite: false
+# authanonymousget: allow anonymous GET operations when auth is used
+authanonymousget: false
+# authcertpath: path to authorization server public pem file
+authcertpath: ""
+# authrealm: authorization server url
+authrealm: ""
+# authservice: authorization server service name
+authservice: ""
+# basicauth.pass: password for basic http authentication
+# basicauth.user: username for basic http authentication
+basicauth:
+  pass: ""
+  user: ""
+# bearerauth: enable bearer auth
+bearerauth: false
+# cache.redis.addr: address of Redis service (host:port)
+# cache.redis.db: Redis database to be selected after connect
+# cache.redis.password: Redis requirepass server configuration
+# cache.store: cache store, can be one of: redis
+cache:
+  redis:
+    addr: ""
+    db: 0
+    password: ""
+  store: ""
+# chartpostformfieldname: form field which will be queried for the chart file content
+chartpostformfieldname: chart
+# charturl: absolute url for .tgzs in index.yaml
+charturl: ""
+# contextpath: base context path
+contextpath: ""
+# cors.alloworigin: value to set in the Access-Control-Allow-Origin HTTP header
+cors:
+  alloworigin: ""
+# debug: show debug messages
+debug: false
+# depth: levels of nested repos for multitenancy
+depth: 0
+# depth: levels of nested repos for multitenancy
+# depthdynamic: the length of repo variable
+depthdynamic: false
+# disabldelete: disable DELETE route
+disabldelete: false
+# disableapi: disable all routes prefixed with /api
+disableapi: false
+# disableforceoverwrite: do not allow chart versions to be re-uploaded, even with ?force querystring
+disableforceoverwrite: false
+# disablemetrics: disable Prometheus metrics
+disablemetrics: false
+# disablestatefiles: disable use of index-cache.yaml
+disablestatefiles: false
+# genindex: generate index.yaml, print to stdout and exit
+genindex: false
+# indexlimit: parallel scan limit for the repo indexer
+indexlimit: 0
+# loghealth: log inbound /health requests
+loghealth: false
+# logjson: output structured logs as json
+logjson: false
+# maxstorageobjects: maximum number of objects allowed in storage (per tenant)
+maxstorageobjects: 0
+# maxuploadsize: max size of post body (in bytes)
+maxuploadsize: 20971520
+# port: port to listen on
+port: 8080
+# provpostformfieldname: form field which will be queried for the provenance file content
+provpostformfieldname: prov
+# readtimeout: socket timeout in seconds
+readtimeout: 30
+# storage.alibaba.bucket: OSS bucket to store charts for Alibaba Cloud storage backend
+# storage.alibaba.endpoint: OSS endpoint
+# storage.alibaba.prefix: prefix to store charts for --storage-alibaba-cloud-bucket
+# storage.alibaba.sse: server side encryption algorithm for Alibaba Cloud storage backend, AES256 or KMS
+# storage.amazon.bucket: s3 bucket to store charts for amazon storage backend
+# storage.amazon.endpoint: alternative s3 endpoint
+# storage.amazon.prefix: prefix to store charts for --storage-amazon-bucket
+# storage.amazon.region: region of --storage-amazon-bucket
+# storage.amazon.sse: server side encryption algorithm
+# storage.backend: storage backend, can be one of: local, amazon, google, oracle
+# storage.baidu.bucket: BOS bucket to store charts for Baidu Cloud storage backend
+# storage.baidu.endpoint: BOS endpoint
+# storage.baidu.prefix: prefix to store charts for --storage-baidu-cloud-bucket
+# storage.etcd.cafile: ca-file provided to etcd
+# storage.etcd.certfile: cert provided to etcd
+# storage.etcd.endpoint: ETCD endpoint
+# storage.etcd.keyfile: key provided to etcd
+# storage.etcd.prefix: prefix used in etcd to store the charts in etcd
+# storage.google.bucket: gcs bucket to store charts for google storage backend
+# storage.google.prefix: prefix to store charts for --storage-google-bucket
+# storage.local.rootdir: directory to store charts for local storage backend
+# storage.microsoft.container: container to store charts for microsoft storage backend
+# storage.microsoft.prefix: prefix to store charts for --storage-microsoft-prefix
+# storage.netease.bucket: NOS bucket to store charts for Netease Cloud storage backend
+# storage.netease.endpoint: NOS endpoint
+# storage.netease.prefix: prefix to store charts for --storage-netease-cloud-bucket
+# storage.openstack.cacert: path to a CA cert bundle for your openstack endpoint
+# storage.openstack.container: container to store charts for openstack storage backend
+# storage.openstack.prefix: prefix to store charts for --storage-openstack-container
+# storage.openstack.region: region of --storage-openstack-container
+# storage.oracle.bucket: ocs bucket to store charts for oracle cloud storage
+# storage.oracle.compartmentid: compartment ocid of --storage-oracle-bucket
+# storage.oracle.prefix: prefix to store charts for --storage-oracle-bucket
+# storage.oracle.region: region to store charts for --storage-oracle-bucket
+# storage.tencent.bucket: COS bucket to store charts for Tencent Cloud storage backend
+# storage.tencent.endpoint: COS endpoint
+# storage.tencent.prefix: prefix to store charts for --storage-tencent-cloud-bucket
+# storage.timestamptolerance: timestamp drift tolerated between cached and generated index before invalidation
+storage:
+  alibaba:
+    bucket: ""
+    endpoint: ""
+    prefix: ""
+    sse: ""
+  amazon:
+    bucket: ""
+    endpoint: ""
+    prefix: ""
+    region: ""
+    sse: ""
+  backend: ""
+  baidu:
+    bucket: ""
+    endpoint: ""
+    prefix: ""
+  etcd:
+    cafile: ""
+    certfile: ""
+    endpoint: http://localhost:2379
+    keyfile: ""
+    prefix: ""
+  google:
+    bucket: ""
+    prefix: ""
+  local:
+    rootdir: ""
+  microsoft:
+    container: ""
+    prefix: ""
+  netease:
+    bucket: ""
+    endpoint: ""
+    prefix: ""
+  openstack:
+    cacert: ""
+    container: ""
+    prefix: ""
+    region: ""
+  oracle:
+    bucket: ""
+    compartmentid: ""
+    prefix: ""
+    region: ""
+  tencent:
+    bucket: ""
+    endpoint: ""
+    prefix: ""
+  timestamptolerance: 0s
+# tls.cacert: path to tls ca cert file
+# tls.cert: path to tls certificate chain file
+# tls.key: path to tls key file
+tls:
+  cacert: ""
+  cert: ""
+  key: ""
+# writetimeout: socket timeout in seconds
+writetimeout: 30
+

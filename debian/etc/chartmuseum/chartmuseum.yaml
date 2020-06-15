@@ -1,0 +1,33 @@
+# See /usr/share/doc/chartmuseum/examples/chartmuseum.yaml
+# for a full list of available config options.
+
+# Port 8080 is the ChartMuseum default, listed here because it's likely to get changed.
+#
+# port: port to listen on
+port: 8080
+
+# Allow to host multiple repos like "charts/production" and "charts/incubator".
+#
+# depth: levels of nested repos for multitenancy
+depth: 1
+
+# Do not allow to delete charts once they have been uploaded.
+#
+# disabledelete: disable DELETE route
+# !! This is not a typo, current version of CharMuseum has a typo in the config key (disabldelete).
+# !! The next version will probably be fixed, so we're setting both here and add this warning.
+# !! See https://github.com/helm/chartmuseum/pull/341
+disabldelete: true
+disabledelete: true
+# disableforceoverwrite: do not allow chart versions to be re-uploaded, even with ?force querystring
+disableforceoverwrite: true
+
+# ChartMuseum needs at least one backend configured to run.
+# This has been choosen as default for the debian package.
+#
+# storage.backend: storage backend, can be one of: local, amazon, google, oracle
+# storage.local.rootdir: directory to store charts for local storage backend
+storage:
+  backend: local
+  local:
+    rootdir: /var/lib/chartmuseum

@@ -1,0 +1,5 @@
+chartmuseum (0.12.0-1) buster-wikimedia; urgency=medium
+
+  * Initial release (Bug: T253843)
+
+ -- Janis Meybohm <jmeybohm@wikimedia.org>  Thu, 11 Jun 2020 10:25:53 +0200

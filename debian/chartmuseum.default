@@ -1,0 +1,41 @@
+# Environment file for ChartMuseum
+#
+# This file is mainly intended for providing access credentials for storage
+# back-ends to ChartMuseum.
+# You may as well specify general configutation options here, but they are
+# better placed in /etc/chartmuseum/chartmuseum.yaml.
+
+# For Amazon S3 compatible storage:
+#AWS_ACCESS_KEY_ID
+#AWS_SECRET_ACCESS_KEY
+
+# For Google Cloud Storage:
+#GOOGLE_APPLICATION_CREDENTIALS
+
+# For Microsoft Azure Blob Storage:
+#AZURE_STORAGE_ACCOUNT
+#AZURE_STORAGE_ACCESS_KEY
+
+# For OpenStack Object Storage:
+#OS_AUTH_URL
+#OS_PROJECT_NAME or OS_TENANT_NAME or OS_PROJECT_ID or OS_TENANT_ID
+#OS_DOMAIN_NAME or OS_DOMAIN_ID
+#OS_USERNAME or OS_USERID
+#OS_PASSWORD
+
+# For Swift V1 Auth:
+#ST_AUTH
+#ST_USER
+#ST_KEY
+
+# For Baidu Cloud BOS Storage:
+#BAIDU_CLOUD_ACCESS_KEY_ID
+#BAIDU_CLOUD_ACCESS_KEY_SECRET
+
+# For Tencent Cloud COS Storage:
+#TENCENT_CLOUD_COS_SECRET_ID
+#TENCENT_CLOUD_COS_SECRET_KEY
+
+# For Netease Cloud NOS Storage:
+#NETEASE_CLOUD_ACCESS_KEY_ID
+#NETEASE_CLOUD_ACCESS_KEY_SECRET

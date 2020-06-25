@@ -1,0 +1,4 @@
+0001-Allow-to-bind-chartmuseum-to-a-specific-interface.patch
+0002-Implement-Swift-V1-Auth-in-chartmuseum-storage.patch
+0003-Add-support-for-Swift-V1-Auth.patch
+0004-Update-vendor-for-gophercloud-openstack-objectstorag.patch

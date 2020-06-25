@@ -1,0 +1,173 @@
+From: Janis Meybohm <jmeybohm@wikimedia.org>
+Date: Fri, 26 Jun 2020 18:16:52 +0200
+Subject: Update vendor for gophercloud/openstack/objectstorage/v1/swauth
+
+Change-Id: Id99b22626f42cd75a82582af061ca0dd52b83830
+---
+ .../openstack/objectstorage/v1/swauth/doc.go       | 16 +++++
+ .../openstack/objectstorage/v1/swauth/requests.go  | 70 ++++++++++++++++++++++
+ .../openstack/objectstorage/v1/swauth/results.go   | 27 +++++++++
+ .../openstack/objectstorage/v1/swauth/urls.go      |  7 +++
+ vendor/modules.txt                                 |  1 +
+ 5 files changed, 121 insertions(+)
+ create mode 100644 vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/doc.go
+ create mode 100644 vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/requests.go
+ create mode 100644 vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/results.go
+ create mode 100644 vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/urls.go
+
+diff --git a/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/doc.go b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/doc.go
+new file mode 100644
+index 0000000..989dc4e
+--- /dev/null
++++ b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/doc.go
+@@ -0,0 +1,16 @@
++/*
++Package swauth implements Swift's built-in authentication.
++
++Example to Authenticate with swauth
++
++	authOpts := swauth.AuthOpts{
++		User: "project:user",
++		Key:  "password",
++	}
++
++	swiftClient, err := swauth.NewObjectStorageV1(providerClient, authOpts)
++	if err != nil {
++		panic(err)
++	}
++*/
++package swauth
+diff --git a/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/requests.go b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/requests.go
+new file mode 100644
+index 0000000..29bdcbc
+--- /dev/null
++++ b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/requests.go
+@@ -0,0 +1,70 @@
++package swauth
++
++import "github.com/gophercloud/gophercloud"
++
++// AuthOptsBuilder describes struct types that can be accepted by the Auth call.
++type AuthOptsBuilder interface {
++	ToAuthOptsMap() (map[string]string, error)
++}
++
++// AuthOpts specifies an authentication request.
++type AuthOpts struct {
++	// User is an Swauth-based username in username:tenant format.
++	User string `h:"X-Auth-User" required:"true"`
++
++	// Key is a secret/password to authenticate the User with.
++	Key string `h:"X-Auth-Key" required:"true"`
++}
++
++// ToAuthOptsMap formats an AuthOpts structure into a request body.
++func (opts AuthOpts) ToAuthOptsMap() (map[string]string, error) {
++	return gophercloud.BuildHeaders(opts)
++}
++
++// Auth performs an authentication request for a Swauth-based user.
++func Auth(c *gophercloud.ProviderClient, opts AuthOptsBuilder) (r GetAuthResult) {
++	h := make(map[string]string)
++
++	if opts != nil {
++		headers, err := opts.ToAuthOptsMap()
++		if err != nil {
++			r.Err = err
++			return
++		}
++
++		for k, v := range headers {
++			h[k] = v
++		}
++	}
++
++	resp, err := c.Request("GET", getURL(c), &gophercloud.RequestOpts{
++		MoreHeaders: h,
++		OkCodes:     []int{200},
++	})
++
++	if resp != nil {
++		r.Header = resp.Header
++	}
++
++	r.Err = err
++
++	return r
++}
++
++// NewObjectStorageV1 creates a Swauth-authenticated *gophercloud.ServiceClient
++// client that can issue ObjectStorage-based API calls.
++func NewObjectStorageV1(pc *gophercloud.ProviderClient, authOpts AuthOpts) (*gophercloud.ServiceClient, error) {
++	auth, err := Auth(pc, authOpts).Extract()
++	if err != nil {
++		return nil, err
++	}
++
++	swiftClient := &gophercloud.ServiceClient{
++		ProviderClient: pc,
++		Endpoint:       gophercloud.NormalizeURL(auth.StorageURL),
++	}
++
++	swiftClient.TokenID = auth.Token
++
++	return swiftClient, nil
++}
+diff --git a/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/results.go b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/results.go
+new file mode 100644
+index 0000000..f442f47
+--- /dev/null
++++ b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/results.go
+@@ -0,0 +1,27 @@
++package swauth
++
++import (
++	"github.com/gophercloud/gophercloud"
++)
++
++// GetAuthResult contains the response from the Auth request. Call its Extract
++// method to interpret it as an AuthResult.
++type GetAuthResult struct {
++	gophercloud.HeaderResult
++}
++
++// AuthResult contains the authentication information from a Swauth
++// authentication request.
++type AuthResult struct {
++	Token      string `json:"X-Auth-Token"`
++	StorageURL string `json:"X-Storage-Url"`
++	CDNURL     string `json:"X-CDN-Management-Url"`
++}
++
++// Extract is a method that attempts to interpret any Swauth authentication
++// response as a AuthResult struct.
++func (r GetAuthResult) Extract() (*AuthResult, error) {
++	var s *AuthResult
++	err := r.ExtractInto(&s)
++	return s, err
++}
+diff --git a/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/urls.go b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/urls.go
+new file mode 100644
+index 0000000..a30cabd
+--- /dev/null
++++ b/vendor/github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth/urls.go
+@@ -0,0 +1,7 @@
++package swauth
++
++import "github.com/gophercloud/gophercloud"
++
++func getURL(c *gophercloud.ProviderClient) string {
++	return c.IdentityBase + "auth/v1.0"
++}
+diff --git a/vendor/modules.txt b/vendor/modules.txt
+index c32c2a2..65465d4 100644
+--- a/vendor/modules.txt
++++ b/vendor/modules.txt
+@@ -231,6 +231,7 @@ github.com/gophercloud/gophercloud/openstack/identity/v3/tokens
+ github.com/gophercloud/gophercloud/openstack/objectstorage/v1/accounts
+ github.com/gophercloud/gophercloud/openstack/objectstorage/v1/containers
+ github.com/gophercloud/gophercloud/openstack/objectstorage/v1/objects
++github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth
+ github.com/gophercloud/gophercloud/openstack/utils
+ github.com/gophercloud/gophercloud/pagination
+ # github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7

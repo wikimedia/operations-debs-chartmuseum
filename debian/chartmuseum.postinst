@@ -23,6 +23,10 @@ case "$1" in
         systemd-sysusers
 
         chown chartmuseum:chartmuseum /var/lib/chartmuseum
+
+        # Ensure defaults file is readable by root only as it will most likely
+        # contain secrets.
+        chmod 0600 /etc/default/chartmuseum
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -1,0 +1,88 @@
+From: Janis Meybohm <jmeybohm@wikimedia.org>
+Date: Fri, 26 Jun 2020 17:39:13 +0200
+Subject: Implement Swift V1 Auth in chartmuseum/storage
+
+gophercloud's AuthOptionsFromEnv does not support Swift V1 Auth
+directly. I added NewOpenstackOSBackendV1Auth to support that.
+
+Change-Id: Iee3157e87799a3c941aa5134b009e50b62d61a0e
+---
+ vendor/github.com/chartmuseum/storage/openstack.go | 58 ++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
+
+diff --git a/vendor/github.com/chartmuseum/storage/openstack.go b/vendor/github.com/chartmuseum/storage/openstack.go
+index 80a34a1..04a8633 100644
+--- a/vendor/github.com/chartmuseum/storage/openstack.go
++++ b/vendor/github.com/chartmuseum/storage/openstack.go
+@@ -31,6 +31,7 @@ import (
+ 	"github.com/gophercloud/gophercloud"
+ 	"github.com/gophercloud/gophercloud/openstack"
+ 	osObjects "github.com/gophercloud/gophercloud/openstack/objectstorage/v1/objects"
++	"github.com/gophercloud/gophercloud/openstack/objectstorage/v1/swauth"
+ 	"github.com/gophercloud/gophercloud/pagination"
+ )
+ 
+@@ -142,6 +143,63 @@ func NewOpenstackOSBackend(container string, prefix string, region string, caCer
+ 	return b
+ }
+ 
++// NewOpenstackOSBackendV1Auth creates a new instance of OpenstackOSBackend using Swift V1 Auth
++func NewOpenstackOSBackendV1Auth(container string, prefix string, caCert string) *OpenstackOSBackend {
++	for _, e := range []string{"ST_USER", "ST_KEY", "ST_AUTH"} {
++		if os.Getenv(e) == "" {
++			panic(fmt.Sprintf("Openstack (object storage): missing environment variable %s", e))
++		}
++	}
++
++	authOpts := swauth.AuthOpts{
++		User: os.Getenv("ST_USER"),
++		Key:  os.Getenv("ST_KEY"),
++	}
++	identityEndpoint := os.Getenv("ST_AUTH")
++
++	// Create a custom HTTP client to handle custom CACERT if needed
++	httpTransport := http.DefaultTransport
++	if caCert != "" {
++		caCert, err := ioutil.ReadFile(caCert)
++		if err != nil {
++			panic(fmt.Sprintf("Openstack (ca certificates): %s", err))
++		}
++
++		caCertPool := x509.NewCertPool()
++		if !caCertPool.AppendCertsFromPEM(caCert) {
++			panic(fmt.Sprintf("Openstack (ca certificates): unable to read certificate bundle"))
++		}
++
++		httpTransport = &http.Transport{
++			TLSClientConfig: &tls.Config{
++				RootCAs: caCertPool,
++			},
++		}
++	}
++
++	provider, err := openstack.NewClient(identityEndpoint)
++	if err != nil {
++		panic(fmt.Sprintf("Openstack (client): %s", err))
++	}
++
++	provider.HTTPClient = http.Client{
++		Transport: httpTransport,
++	}
++
++	client, err := swauth.NewObjectStorageV1(provider, authOpts)
++	if err != nil {
++		panic(fmt.Sprintf("Openstack (object storage): %s", err))
++	}
++
++	b := &OpenstackOSBackend{
++		Container: container,
++		Prefix:    prefix,
++		Client:    client,
++	}
++
++	return b
++}
++
+ // ListObjects lists all objects in an Openstack container, at prefix
+ func (b OpenstackOSBackend) ListObjects(prefix string) ([]Object, error) {
+ 	var objects []Object

@@ -1,3 +1,17 @@
+chartmuseum (0.12.0-2) buster-wikimedia; urgency=medium
+
+  * Add a local patch to allow to bind chartmuseum to a specific
+    interface, see: https://github.com/helm/chartmuseum/pull/345
+
+  * Add patches for chartmuseum/storage and chartmuseum to support Swift V1
+    Auth, see:
+    - https://github.com/chartmuseum/storage/pull/45
+    - https://github.com/helm/chartmuseum/pull/346
+
+  * Add EnvironmentFile /etc/default/chartmuseum
+
+ -- Janis Meybohm <jmeybohm@wikimedia.org>  Thu, 25 Jun 2020 17:47:53 +0200
+
 chartmuseum (0.12.0-1) buster-wikimedia; urgency=medium
 
   * Initial release (Bug: T253843)

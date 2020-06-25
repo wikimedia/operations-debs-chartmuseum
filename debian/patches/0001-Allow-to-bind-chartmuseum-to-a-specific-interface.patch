@@ -1,0 +1,102 @@
+From: jayme-github <tuxnet@gmail.com>
+Date: Tue, 23 Jun 2020 15:14:48 +0200
+Subject: Allow to bind chartmuseum to a specific interface
+
+The new config option "listen.host" ("--listen-host", "LISTEN_HOST") may
+be used to bind  chartmuseum to a specific interface rather than 0.0.0.0.
+
+Default is 0.0.0.0 to stick with current behaviour.
+
+Fixes #255
+
+Signed-off-by: jayme-github <jayme-github@users.noreply.github.com>
+---
+ cmd/chartmuseum/main.go                      | 2 +-
+ pkg/chartmuseum/router/router.go             | 6 +++---
+ pkg/chartmuseum/server.go                    | 2 +-
+ pkg/chartmuseum/server/multitenant/server.go | 4 ++--
+ pkg/config/vars.go                           | 9 +++++++++
+ 5 files changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/cmd/chartmuseum/main.go b/cmd/chartmuseum/main.go
+index e2d8ec0..2851e02 100644
+--- a/cmd/chartmuseum/main.go
++++ b/cmd/chartmuseum/main.go
+@@ -105,7 +105,7 @@ func cliHandler(c *cli.Context) {
+ 		crash(err)
+ 	}
+ 
+-	server.Listen(conf.GetInt("port"))
++	server.Listen(conf.GetString("listen.host"), conf.GetInt("port"))
+ }
+ 
+ func backendFromConfig(conf *config.Config) storage.Backend {
+diff --git a/pkg/chartmuseum/router/router.go b/pkg/chartmuseum/router/router.go
+index d851e36..8b55999 100644
+--- a/pkg/chartmuseum/router/router.go
++++ b/pkg/chartmuseum/router/router.go
+@@ -162,13 +162,13 @@ func NewRouter(options RouterOptions) *Router {
+ 	return router
+ }
+ 
+-func (router *Router) Start(port int) {
++func (router *Router) Start(host string, port int) {
+ 	router.Logger.Infow("Starting ChartMuseum",
+-		"port", port,
++		"host", host, "port", port,
+ 	)
+ 
+ 	server := http.Server{
+-		Addr:         fmt.Sprintf(":%d", port),
++		Addr:         fmt.Sprintf("%s:%d", host, port),
+ 		Handler:      router,
+ 		ReadTimeout:  router.ReadTimeout,
+ 		WriteTimeout: router.WriteTimeout,
+diff --git a/pkg/chartmuseum/server.go b/pkg/chartmuseum/server.go
+index 0a1bb2b..e5e6e82 100644
+--- a/pkg/chartmuseum/server.go
++++ b/pkg/chartmuseum/server.go
+@@ -69,7 +69,7 @@ type (
+ 
+ 	// Server is a generic interface for web servers
+ 	Server interface {
+-		Listen(port int)
++		Listen(host string, port int)
+ 	}
+ )
+ 
+diff --git a/pkg/chartmuseum/server/multitenant/server.go b/pkg/chartmuseum/server/multitenant/server.go
+index c22fa06..640fd4f 100644
+--- a/pkg/chartmuseum/server/multitenant/server.go
++++ b/pkg/chartmuseum/server/multitenant/server.go
+@@ -144,8 +144,8 @@ func NewMultiTenantServer(options MultiTenantServerOptions) (*MultiTenantServer,
+ }
+ 
+ // Listen starts the router on a given port
+-func (server *MultiTenantServer) Listen(port int) {
+-	server.Router.Start(port)
++func (server *MultiTenantServer) Listen(host string, port int) {
++	server.Router.Start(host, port)
+ }
+ 
+ func (server *MultiTenantServer) genIndex() {
+diff --git a/pkg/config/vars.go b/pkg/config/vars.go
+index 2b30ec4..bcc920d 100644
+--- a/pkg/config/vars.go
++++ b/pkg/config/vars.go
+@@ -721,6 +721,15 @@ var configVars = map[string]configVar{
+ 			EnvVar: "CORS_ALLOW_ORIGIN",
+ 		},
+ 	},
++	"listen.host": {
++		Type:    stringType,
++		Default: "0.0.0.0",
++		CLIFlag: cli.StringFlag{
++			Name:   "listen-host",
++			Usage:  "specifies the host to listen on",
++			EnvVar: "LISTEN_HOST",
++		},
++	},
+ }
+ 
+ func populateCLIFlags() {

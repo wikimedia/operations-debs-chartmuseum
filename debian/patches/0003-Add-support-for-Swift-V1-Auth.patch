@@ -1,0 +1,101 @@
+From: jayme-github <jayme-github@users.noreply.github.com>
+Date: Fri, 26 Jun 2020 17:12:08 +0200
+Subject: Add support for Swift V1 Auth
+
+This adds support for Swift V1 Auth sharing all of the config options
+with openstack. I've added a new option (--storage-openstack-auth) to
+switch to V1 Auth.
+
+This depends on https://github.com/chartmuseum/storage/pull/45
+
+Signed-off-by: jayme-github <jayme-github@users.noreply.github.com>
+---
+ README.md               | 14 ++++++++++++++
+ cmd/chartmuseum/main.go | 28 +++++++++++++++++++++-------
+ pkg/config/vars.go      |  9 +++++++++
+ 3 files changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/README.md b/README.md
+index 091892a..9137170 100644
+--- a/README.md
++++ b/README.md
+@@ -285,6 +285,20 @@ chartmuseum --debug --port=8080 \
+   --storage-openstack-region="myregion"
+ ```
+ 
++For Swift V1 Auth you must set the following env vars:
++- `ST_AUTH`
++- `ST_USER`
++- `ST_KEY`
++
++```bash
++chartmuseum --debug --port=8080 \
++  --storage="openstack" \
++  --storage-openstack-auth="v1" \
++  --storage-openstack-container="mycontainer" \
++  --storage-openstack-prefix=""
++```
++
++
+ #### Using with Oracle Cloud Infrastructure Object Storage
+ 
+ Make sure your environment is properly setup to access `my-ocs-bucket`.
+diff --git a/cmd/chartmuseum/main.go b/cmd/chartmuseum/main.go
+index 2851e02..9bbd474 100644
+--- a/cmd/chartmuseum/main.go
++++ b/cmd/chartmuseum/main.go
+@@ -203,13 +203,27 @@ func alibabaBackendFromConfig(conf *config.Config) storage.Backend {
+ }
+ 
+ func openstackBackendFromConfig(conf *config.Config) storage.Backend {
+-	crashIfConfigMissingVars(conf, []string{"storage.openstack.container", "storage.openstack.region"})
+-	return storage.Backend(storage.NewOpenstackOSBackend(
+-		conf.GetString("storage.openstack.container"),
+-		conf.GetString("storage.openstack.prefix"),
+-		conf.GetString("storage.openstack.region"),
+-		conf.GetString("storage.openstack.cacert"),
+-	))
++	var backend storage.Backend
++	switch conf.GetString("storage.openstack.auth") {
++	case "v1":
++		crashIfConfigMissingVars(conf, []string{"storage.openstack.container"})
++		backend = storage.NewOpenstackOSBackendV1Auth(
++			conf.GetString("storage.openstack.container"),
++			conf.GetString("storage.openstack.prefix"),
++			conf.GetString("storage.openstack.cacert"),
++		)
++	case "auto":
++		crashIfConfigMissingVars(conf, []string{"storage.openstack.container", "storage.openstack.region"})
++		backend = storage.NewOpenstackOSBackend(
++			conf.GetString("storage.openstack.container"),
++			conf.GetString("storage.openstack.prefix"),
++			conf.GetString("storage.openstack.region"),
++			conf.GetString("storage.openstack.cacert"),
++		)
++	default:
++		crash("Unsupported OpenStack auth protocol: ", conf.GetString("storage.openstack.auth"))
++	}
++	return backend
+ }
+ 
+ func baiduBackendFromConfig(conf *config.Config) storage.Backend {
+diff --git a/pkg/config/vars.go b/pkg/config/vars.go
+index bcc920d..7a5f529 100644
+--- a/pkg/config/vars.go
++++ b/pkg/config/vars.go
+@@ -476,6 +476,15 @@ var configVars = map[string]configVar{
+ 			EnvVar: "STORAGE_OPENSTACK_CACERT",
+ 		},
+ 	},
++	"storage.openstack.auth": {
++		Type:    stringType,
++		Default: "auto",
++		CLIFlag: cli.StringFlag{
++			Name:   "storage-openstack-auth",
++			Usage:  "the OpenStack auth protocol to use. Set \"v1\" for v1 or \"auto\" for v2 and v3",
++			EnvVar: "STORAGE_OPENSTACK_AUTH",
++		},
++	},
+ 	"storage.baidu.prefix": {
+ 		Type:    stringType,
+ 		Default: "",

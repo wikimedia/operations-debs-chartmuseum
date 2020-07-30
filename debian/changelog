@@ -1,3 +1,10 @@
+chartmuseum (0.12.0-3) buster-wikimedia; urgency=medium
+
+  * Support Swift V1 reauth.
+    See: https://github.com/chartmuseum/storage/pull/47
+
+ -- Janis Meybohm <jmeybohm@wikimedia.org>  Thu, 30 Jul 2020 12:12:08 +0200
+
 chartmuseum (0.12.0-2) buster-wikimedia; urgency=medium
 
   * Add a local patch to allow to bind chartmuseum to a specific
